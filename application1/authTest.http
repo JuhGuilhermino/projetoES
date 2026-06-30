@@ -1,0 +1,45 @@
+### Cenário 1: Cadastrar um novo usuário com sucesso
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "username": "dev_musica",
+  "email": "teste@lyricsflow.com",
+  "password": "SenhaSegura123",
+  "level": "BEGINNER"
+}
+
+###
+
+### Cenário 2: Tentar cadastrar o mesmo e-mail (Deve falhar)
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "username": "outro_username",
+  "email": "teste@lyricsflow.com",
+  "password": "OutraSenha123",
+  "level": "ADVANCED"
+}
+
+###
+
+### Cenário 3: Realizar Login com sucesso
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "teste@lyricsflow.com",
+  "password": "SenhaSegura123"
+}
+
+###
+
+### Cenário 4: Tentar Login com senha errada (Deve falhar)
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "teste@lyricsflow.com",
+  "password": "SenhaErradaMsm"
+}
