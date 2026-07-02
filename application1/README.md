@@ -1,3 +1,5 @@
+# Backend LyricsFlow
+
 ## To-do
 - [x] Cadastro e login
     - [x] UserResgisterRequestDO.java
@@ -20,8 +22,8 @@
     - [x] TaskRepository.java
     - [x] FlashcardRepository.java
     - [x] VagalumeResponseDTO.java
-    - [x] VagalumeAPIClient.java
+    - [ ] VagalumeAPIClient.java
     - [ ] GeminiClient.java
-    - [ ] TaskService.java
+    - [ ] TaskService.java - estou pegado os dados da músicas no banco
     - [ ] TaskController.java
 - [ ] Flashcards
