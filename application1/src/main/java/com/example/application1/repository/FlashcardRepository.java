@@ -1,5 +1,6 @@
 package com.example.application1.repository;
 
+import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Repository
 public interface FlashcardRepository extends JpaRepository<Flashcard, Long> {
-    List<Flashcard> findByUserIdAndNextReviewDateLessThanEqual(Long userId, LocalDate date);
+    List<Flashcard> findDueCardsByUserId(@Param("userId") Long userId, @Param("today") LocalDate today);
     boolean existsByUserIdAndWordIgnoreCase(Long userId, String word);
+    java.util.List<Flashcard> findByUserId(Long userId);
 }

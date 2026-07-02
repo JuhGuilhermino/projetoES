@@ -1,1 +1,18 @@
-@baseUrl = http://localhost:8080/
+@baseUrl = http://localhost:8080/flashcards
+
+### Listar todos os flashcards de um usuário
+GET {{baseUrl}}?userId=10
+Accept: application/json
+
+### Responder flahscard
+POST {{baseUrl}}/answer
+Content-Type: application/json
+
+{
+  "flashcardId": 25,
+  "quality": "EASY"
+}
+
+### Listar todos os flashcards para serem revisados no dia
+GET {{baseUrl}}/next?userId=10
+Accept: application/json

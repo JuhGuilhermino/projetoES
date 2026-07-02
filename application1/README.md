@@ -59,7 +59,7 @@ Uma linha escrita Send Request aparecerá logo acima de cada método (POST, GET,
 ## To-do
 Controle de implementação das funcionalidades do sistema:
 **Ludmilla**
-* [ ] Gerar dados do flashcard com o Gemini.
+* [x] Gerar dados do flashcard com o Gemini.
 * [ ] Consultar um flahcard isolado.
 * [ ] Cronograma de revisões diárias com repetição espaçada.
 * [ ] Dashboard com estaísticas do progresso do usuário
