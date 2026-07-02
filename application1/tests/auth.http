@@ -5,8 +5,8 @@ POST {{baseUrl}}/register
 Content-Type: application/json
 
 {
-  "username": "dev_musica",
-  "email": "teste@lyricsflow.com",
+  "username": "julia",
+  "email": "julia@test.com",
   "password": "SenhaSegura123",
   "level": "BEGINNER"
 }
@@ -27,7 +27,7 @@ POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-  "email": "teste@lyricsflow.com",
+  "email": "julia@test.com",
   "password": "SenhaSegura123"
 }
 
@@ -38,6 +38,6 @@ POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-  "email": "teste@lyricsflow.com",
+  "email": "julia@test.com",
   "password": "SenhaErradaMsm"
 }

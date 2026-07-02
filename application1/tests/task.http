@@ -20,8 +20,8 @@ POST {{baseUrl}}/start
 Content-Type: application/json
 
 {
-    "userId": 10,
-    "songId": 1
+    "userId": 11,
+    "songId": 2
 }
 
 ### Enviar resposta
@@ -29,20 +29,20 @@ POST {{baseUrl}}/submit
 Content-Type: application/json
 
 {
-    "taskId": 25,
+    "taskId": 26,
     "userId": 10,
     "userAnswers": [
-        "life",
-        "escape",
-        "eyes",
-        "poor",
-        "need",
-        "wind",
-        "killed",
-        "gun",
-        "dead",
-        "cry",
-        "body",
-        "die"
+        "heaven",
+        "easy",
+        "sky",
+        "people",
+        "living",
+        "countries",
+        "hard",
+        "peace",
+        "dreamer",
+        "hope",
+        "join",
+        "world"
     ]
 }
