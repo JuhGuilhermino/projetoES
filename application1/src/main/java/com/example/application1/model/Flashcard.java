@@ -45,7 +45,6 @@ public class Flashcard {
         this.createdAt = createdAt;
     }
 
-    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
