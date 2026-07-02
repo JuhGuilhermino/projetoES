@@ -44,14 +44,34 @@ public class FlashcardController {
 
 
     @PostMapping("/answer")
-    public ResponseEntity<Void> processAnswer(@RequestBody FlashcardAnswerDTO answerDTO) {
+    public ResponseEntity<?> processAnswer(@RequestBody FlashcardAnswerDTO answerDTO) {
         try {
-            flashcardService.processAnswer(answerDTO);
-            return ResponseEntity.ok().build();
+            this.flashcardService.processAnswer(answerDTO);
+            return ResponseEntity.ok("Resposta processada com sucesso. O flashcard foi reagendado.");
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("Erro na validação dos dados: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ocorreu um erro ao processar a resposta: " + e.getMessage());
+        }
+    }
+
+
+    @PostMapping("/review-search")
+    public ResponseEntity<?> reviewSpecificWord(
+            @RequestParam Long userId,
+            @RequestParam String word,
+            @RequestParam String quality) {
+        try {
+            this.flashcardService.reviewSpecificWord(userId, word, quality);
+            return ResponseEntity.ok("Flashcard '" + word + "' revisado isoladamente com sucesso!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Erro na validação da pesquisa: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ocorreu um erro ao processar a revisão isolada: " + e.getMessage());
         }
     }
 }
+
+

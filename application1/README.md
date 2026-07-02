@@ -60,8 +60,9 @@ Uma linha escrita Send Request aparecerá logo acima de cada método (POST, GET,
 Controle de implementação das funcionalidades do sistema:
 **Ludmilla**
 * [x] Gerar dados do flashcard com o Gemini.
-* [ ] Consultar um flahcard isolado.
-* [ ] Cronograma de revisões diárias com repetição espaçada.
+* [x] Listar todos os flahscards de um ususário.
+* [x] Consultar um flahcard isolado.
+* [x] Cronograma de revisões diárias com repetição espaçada.
 * [ ] Dashboard com estaísticas do progresso do usuário
 
 **Júlia Guilhermino**

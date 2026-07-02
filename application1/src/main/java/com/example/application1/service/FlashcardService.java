@@ -45,8 +45,8 @@ public class FlashcardService {
 
     @Transactional
     public void processAnswer(FlashcardAnswerDTO answerDTO) {
-        Flashcard card = flashcardRepository.findById(answerDTO.getFlashcardId())
-                .orElseThrow(() -> new IllegalArgumentException("Flashcard não encontrado: " + answerDTO.getFlashcardId()));
+        Flashcard card = this.flashcardRepository.findById(answerDTO.getFlashcardId())
+                .orElseThrow(() -> new IllegalArgumentException("Flashcard não encontrado com o ID: " + answerDTO.getFlashcardId()));
 
         FlashcardAnswerQuality qualityEnum;
         try {
@@ -55,8 +55,9 @@ public class FlashcardService {
             throw new IllegalArgumentException("Qualidade inválida fornecida: " + answerDTO.getQuality());
         }
 
+
         applySM2(card, qualityEnum);
-        flashcardRepository.save(card);
+        this.flashcardRepository.save(card);
     }
 
 
@@ -103,6 +104,33 @@ public class FlashcardService {
         } catch (Exception e) {
             throw new RuntimeException("Falha ao consultar os flashcards no banco de dados", e);
         }
+    }
+
+
+    @Transactional
+    public void reviewSpecificWord(Long userId, String word, String quality) {
+        if (userId == null) {
+            throw new IllegalArgumentException("O ID do usuário não pode ser nulo.");
+        }
+        if (word == null || word.trim().isEmpty()) {
+            throw new IllegalArgumentException("A palavra pesquisada não pode ser vazia.");
+        }
+
+        Flashcard card = this.flashcardRepository.findByUserIdAndWordIgnoreCase(userId, word.trim())
+                .orElseThrow(() -> new IllegalArgumentException("Nenhum flashcard encontrado para a palavra '" + word + "' neste usuário."));
+
+        FlashcardAnswerQuality qualityEnum;
+        try {
+            qualityEnum = FlashcardAnswerQuality.valueOf(quality.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Qualidade inválida fornecida: " + quality);
+        }
+
+        applySM2(card, qualityEnum);
+
+        this.flashcardRepository.save(card);
+        
+        System.out.println("Revisão isolada da palavra '" + card.getWord() + "' processada! Próxima revisão: " + card.getNextReviewDate());
     }
 
 }
