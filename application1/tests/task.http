@@ -1,0 +1,40 @@
+@baseUrl = http://localhost:8080/tasks
+
+### Listar todas as músicas do banco
+GET {{baseUrl}}
+Accept: application/json
+
+
+### Buscar música nova -> consultar API
+POST {{baseUrl}}/music
+Content-Type: application/json
+
+{
+    "title": "Yellow",
+    "artist": "Coldplay"
+}
+
+
+### Gerar tarefa
+POST {{baseUrl}}/start
+Content-Type: application/json
+
+{
+    "userId": 10,
+    "songId": 1
+}
+
+### Enviar resposta
+POST {{baseUrl}}/submit
+Content-Type: application/json
+
+{
+    "taskId": 21,
+    "userId": 10,
+    "userAnswers": [
+        "look",
+        "stars",
+        "shine",
+        "yellow"
+    ]
+}

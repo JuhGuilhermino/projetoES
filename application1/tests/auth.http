@@ -1,5 +1,7 @@
-### Cenário 1: Cadastrar um novo usuário com sucesso
-POST http://localhost:8080/auth/register
+@baseUrl = http://localhost:8080/auth
+
+### CADASTRO: sucesso
+POST {{baseUrl}}/register
 Content-Type: application/json
 
 {
@@ -9,10 +11,8 @@ Content-Type: application/json
   "level": "BEGINNER"
 }
 
-###
-
-### Cenário 2: Tentar cadastrar o mesmo e-mail (Deve falhar)
-POST http://localhost:8080/auth/register
+### CADASTRO: falha -> email já cadastrado
+POST {{baseUrl}}/register
 Content-Type: application/json
 
 {
@@ -22,10 +22,8 @@ Content-Type: application/json
   "level": "ADVANCED"
 }
 
-###
-
-### Cenário 3: Realizar Login com sucesso
-POST http://localhost:8080/auth/login
+### LOGIN: com sucesso
+POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
@@ -35,8 +33,8 @@ Content-Type: application/json
 
 ###
 
-### Cenário 4: Tentar Login com senha errada (Deve falhar)
-POST http://localhost:8080/auth/login
+### LOGIN: falha -> senha errada
+POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
