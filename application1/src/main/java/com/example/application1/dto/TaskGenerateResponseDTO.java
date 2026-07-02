@@ -4,14 +4,14 @@ import java.util.List;
 
 public class TaskGenerateResponseDTO {
     private Long taskId;
-    private Long maskedLyrics;
+    private String maskedLyrics;
     private List<String> targetWords; // gabarito
 
     // Construtor Padrão
     public TaskGenerateResponseDTO() {}
 
     // Construtor Completo
-    public TaskGenerateResponseDTO(Long taskId, Long maskedLyrics, List<String> targetWords) {
+    public TaskGenerateResponseDTO(Long taskId, String maskedLyrics, List<String> targetWords) {
         this.taskId = taskId;
         this.maskedLyrics = maskedLyrics;
         this.targetWords = targetWords;
@@ -21,8 +21,8 @@ public class TaskGenerateResponseDTO {
     public Long getTaskId() { return taskId; }
     public void setTaskId(Long taskId) { this.taskId = taskId; }
 
-    public Long getMaskedLyrics() { return maskedLyrics; }
-    public void setMaskedLyrics(Long maskedLyrics) { this.maskedLyrics = maskedLyrics; }
+    public String getMaskedLyrics() { return maskedLyrics; }
+    public void setMaskedLyrics(String maskedLyrics) { this.maskedLyrics = maskedLyrics; }
 
     public List<String> getTargetWords() { return targetWords; }
     public void setTargetWords(List<String> targetWords) { this.targetWords = targetWords; }

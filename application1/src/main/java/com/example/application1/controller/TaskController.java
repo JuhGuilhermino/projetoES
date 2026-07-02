@@ -45,6 +45,7 @@ public class TaskController {
         }
     }
 
+    /**
     @PostMapping("/submit")
     public ResponseEntity<String> submitTask(@RequestBody TaskSubmissionDTO submission) {
         try {
@@ -58,7 +59,7 @@ public class TaskController {
         }
     }
 
-    /**
+    
     @PostMapping("/music")
     public ResponseEntity<?> findOrSaveMusic(@RequestBody MusicRequestDTO request) {
         try {

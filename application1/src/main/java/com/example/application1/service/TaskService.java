@@ -97,6 +97,7 @@ public class TaskService {
         newTask.setScore(0.0f);
         newTask.setCompletedAt(null);
 
+        
         Task task = this.taskRepository.save(newTask);
 
         exercise.setTaskId(task.getId());
@@ -104,6 +105,7 @@ public class TaskService {
         return exercise;
     }
 
+    /* 
     public void submitExercise(TaskSubmissionDTO submission) {
         Optional<Task> taskOptional = this.taskRepository.findById(submission.getTaskId());
         if (taskOptional.isEmpty()) {
@@ -126,7 +128,7 @@ public class TaskService {
         updateTaskStatus(task, finalScore);
         createFlashcardsForTask(user, answerKey);
     }
-    
+    */
     
 
     private float calculateScore(List<String> answerKey, List<String> userAnswers) {
