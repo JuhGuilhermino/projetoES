@@ -106,7 +106,6 @@ public class TaskService {
     }
 
     
-    
     private float calculateScore(List<String> answerKey, List<String> userAnswers) {
         if (answerKey == null || answerKey.isEmpty()) {
             return 0.0f;

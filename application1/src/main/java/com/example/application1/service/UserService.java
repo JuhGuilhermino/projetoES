@@ -39,13 +39,11 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         UserProgress progress = new UserProgress();
-        progress.setUser(savedUser); // Associa com o usuário recém-criado
-        progress.setCurrentStreak(0);
-        progress.setLongestStreak(0);
-        progress.setTotalReviews(0);
-        progress.setTotalCorrectAnswers(0);
-        progress.setCreatedAt(java.time.LocalDateTime.now());
-        progress.setUpdatedAt(java.time.LocalDateTime.now());
+        progress.setUser(savedUser);
+        progress.setTotalTasksCompleted(0);
+        progress.setAverageTaskScore(0.0f);
+        progress.setTotalTargetWords(0);
+        progress.setTotalFlashcardsCount(0);
         this.userProgressRepository.save(progress);
 
         return new UserRegisterResponseDTO(
