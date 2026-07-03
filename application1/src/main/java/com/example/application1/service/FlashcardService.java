@@ -3,6 +3,7 @@ package com.example.application1.service;
 import com.example.application1.dto.FlashcardAnswerDTO;
 import com.example.application1.dto.FlashcardDetailsResponseDTO;
 import com.framework.learning_core.domain.EnumFlashcardAnswerQuality;
+import com.framework.learning_core.engine.SpacingEngine; 
 import com.example.application1.model.Flashcard;
 import com.example.application1.repository.FlashcardRepository;
 import com.example.application1.client.GeminiClient;
@@ -22,17 +23,21 @@ public class FlashcardService {
         this.flashcardRepository = flashcardRepository;
         this.geminiClient = geminiClient;
     }
-
-
+    
+     //recuperar o próximo flashcard pendente e busca os detalhes enriquecidos pela IA.
     public FlashcardDetailsResponseDTO getNextFlashcardForReview(Long userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("O ID do usuário não pode ser nulo.");
+        }
+
         List<Flashcard> dueCards = flashcardRepository.findDueCardsByUserId(userId, LocalDate.now());
 
         if (dueCards.isEmpty()) {
-            throw new IllegalArgumentException("Nenhum flashcard pendente para revisão do usuário " + userId);
+            throw new RuntimeException("Nenhum flashcard pendente para revisão do usuário " + userId);
         }
 
         Flashcard nextCard = dueCards.get(0);
-
+        
         FlashcardDetailsResponseDTO dynamicContent = geminiClient.generateFlashcardDetails(nextCard.getWord());
 
         if (dynamicContent != null) {
@@ -42,70 +47,31 @@ public class FlashcardService {
         return dynamicContent;
     }
 
-
     @Transactional
     public void processAnswer(FlashcardAnswerDTO answerDTO) {
-        Flashcard card = this.flashcardRepository.findById(answerDTO.getFlashcardId())
-                .orElseThrow(() -> new IllegalArgumentException("Flashcard não encontrado com o ID: " + answerDTO.getFlashcardId()));
-
-        EnumFlashcardAnswerQuality qualityEnum;
-        try {
-            qualityEnum = EnumFlashcardAnswerQuality.valueOf(answerDTO.getQuality().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Qualidade inválida fornecida: " + answerDTO.getQuality());
+        if (answerDTO == null || answerDTO.getFlashcardId() == null) {
+            throw new IllegalArgumentException("Dados da resposta ou ID do flashcard inválidos.");
         }
 
+        Flashcard card = this.flashcardRepository.findById(answerDTO.getFlashcardId())
+                .orElseThrow(() -> new RuntimeException("Flashcard não encontrado com o ID: " + answerDTO.getFlashcardId()));
 
-        applySM2(card, qualityEnum);
+        EnumFlashcardAnswerQuality qualityEnum = parseQuality(answerDTO.getQuality());
+
+        //delegação para o Motor de Repetição Espaçada do Framework
+        SpacingEngine.applySM2(card, qualityEnum);
+
         this.flashcardRepository.save(card);
     }
 
-
-    private void applySM2(Flashcard card, EnumFlashcardAnswerQuality quality) {
-        int q = switch (quality) {
-            case PERFECT   -> 5;
-            case EASY      -> 4;
-            case MEDIUM    -> 3;
-            case HARD      -> 2;
-            case INCORRECT -> 1;
-            case BLACKOUT  -> 0;
-        };
-
-        double ef = card.getEaseFactor() != null ? card.getEaseFactor() : 2.5;
-        int interval = card.getInterval() != null ? card.getInterval() : 0;
-
-        if (q >= 3) {
-            interval = switch (interval) {
-                case 0 -> 1;
-                case 1 -> 6;
-                default -> (int) Math.round(interval * ef);
-            };
-        } else {
-            interval = 1;
-        }
-
-        ef = ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
-        ef = Math.max(1.3, ef); 
-
-        card.setInterval(interval);
-        card.setEaseFactor((float) ef);
-        card.setLastQuality(quality);
-        card.setNextReviewDate(LocalDate.now().plusDays(interval));
-    }
-
-
+    
+     //retornar todos os flashcards pertencentes a um usuário específico.
     public List<Flashcard> getAllFlashcardsByUserId(Long userId) {
         if (userId == null) {
             throw new IllegalArgumentException("O ID do usuário não pode ser nulo.");
         }
-        
-        try {
-            return this.flashcardRepository.findByUserId(userId);
-        } catch (Exception e) {
-            throw new RuntimeException("Falha ao consultar os flashcards no banco de dados", e);
-        }
+        return this.flashcardRepository.findByUserId(userId);
     }
-
 
     @Transactional
     public void reviewSpecificWord(Long userId, String word, String quality) {
@@ -117,20 +83,24 @@ public class FlashcardService {
         }
 
         Flashcard card = this.flashcardRepository.findByUserIdAndWordIgnoreCase(userId, word.trim())
-                .orElseThrow(() -> new IllegalArgumentException("Nenhum flashcard encontrado para a palavra '" + word + "' neste usuário."));
+                .orElseThrow(() -> new RuntimeException("Nenhum flashcard encontrado para a palavra '" + word + "' neste usuário."));
 
-        EnumFlashcardAnswerQuality qualityEnum;
-        try {
-            qualityEnum = EnumFlashcardAnswerQuality.valueOf(quality.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Qualidade inválida fornecida: " + quality);
-        }
+        EnumFlashcardAnswerQuality qualityEnum = parseQuality(quality);
 
-        applySM2(card, qualityEnum);
+        //delegação para o Motor do Framework
+        SpacingEngine.applySM2(card, qualityEnum);
 
         this.flashcardRepository.save(card);
-        
-        System.out.println("Revisão isolada da palavra '" + card.getWord() + "' processada! Próxima revisão: " + card.getNextReviewDate());
     }
 
+    private EnumFlashcardAnswerQuality parseQuality(String qualityStr) {
+        if (qualityStr == null) {
+            throw new IllegalArgumentException("A qualidade da resposta não pode ser nula.");
+        }
+        try {
+            return EnumFlashcardAnswerQuality.valueOf(qualityStr.toUpperCase().trim());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Qualidade inválida fornecida: " + qualityStr);
+        }
+    }
 }

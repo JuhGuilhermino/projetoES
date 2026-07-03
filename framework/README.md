@@ -31,7 +31,7 @@ Distribuição da refatoração das classes:
 * [x] UserProgressRepository.java
 * [x] FlashcardRepository.java
 * [x] DashboardService.java
-* [ ] FlashcardService.java
+* [x] FlashcardService.java
 * [ ] GeminiClient.java -> *método referente aos flashcards*
 * [ ] DeashboardController.java
 * [ ] FlashcardController.java
