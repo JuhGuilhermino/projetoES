@@ -43,7 +43,7 @@ Distribuição da refatoração das classes:
 **Júlia Guilhermino**
 * [x] User.java
 * [x] Song.java
-* [ ] Task.java
+* [x] Task.java
 * [ ] UserRepository.java
 * [ ] SongRepository.java
 * [ ] TaskRepository.java

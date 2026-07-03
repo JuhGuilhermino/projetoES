@@ -3,66 +3,68 @@ package com.example.application1.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.framework.learning_core.domain.BaseTask;
 
 @Entity
 @Table(name = "tasks")
-public class Task {
+public class Task extends BaseTask<User, Song> {
+
+    // Construtor Padrão exigido pelo JPA
+    public Task() {
+        super();
+    }
+
+    // Construtor Completo que repassa os tipos concretos da aplicação para o framework
+    public Task(Long id, User user, Song song, Float score, String maskedLyrics, List<String> targetWords, LocalDateTime completedAt) {
+        super(id, user, song, score, maskedLyrics, targetWords, completedAt);
+    }
+
+    // Mapeamento das anotações JPA nos métodos herdados
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Override
+    public Long getId() { 
+        return super.getId(); 
+    }
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    @Override
+    public User getUser() { 
+        return super.getUser(); 
+    }
 
     @ManyToOne
     @JoinColumn(name = "song_id")
-    private Song song;
-
-    @Column(name = "score")
-    private Float score;
-
-    @Column(name = "masked_lyrics", columnDefinition = "TEXT")
-    private String maskedLyrics;
-
-    @Column(name = "target_words")
-    private List<String> targetWords;
-
-    private LocalDateTime completedAt;
-
-    // Construtor Padrão
-    public Task() {}
-
-    // Construtor Completo
-    public Task(Long id, User user, Song song, Float score, String maskedLyrics, List<String> targetWords, LocalDateTime completedAt) {
-        this.id = id;
-        this.user = user;
-        this.song = song;
-        this.score = score;
-        this.maskedLyrics = maskedLyrics;
-        this.targetWords = targetWords;
-        this.completedAt = completedAt;
+    @Override
+    public Song getSong() { 
+        return super.getSong(); 
     }
 
-    // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @Column(name = "score")
+    @Override
+    public Float getScore() { 
+        return super.getScore(); 
+    }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    @Column(name = "masked_lyrics", columnDefinition = "TEXT")
+    @Override
+    public String getMaskedLyrics() { 
+        return super.getMaskedLyrics(); 
+    }
 
-    public Song getSong() { return song; }
-    public void setSong(Song song) { this.song = song; }
+    @ElementCollection // Ideal para mapear listas de tipos básicos (String) no JPA/PostgreSQL
+    @CollectionTable(name = "task_target_words", joinColumns = @JoinColumn(name = "task_id"))
+    @Column(name = "target_word")
+    @Override
+    public List<String> getTargetWords() { 
+        return super.getTargetWords(); 
+    }
 
-    public Float getScore() { return score; }
-    public void setScore(Float score) { this.score = score; }
-
-    public String getMaskedLyrics() { return maskedLyrics; }
-    public void setMaskedLyrics(String maskedLyrics) { this.maskedLyrics = maskedLyrics; }
-
-    public List<String> getTargetWords() { return targetWords; }
-    public void setTargetWords(List<String> targetWords) { this.targetWords = targetWords; }
-
-    public LocalDateTime getCompletedAt() { return completedAt; }
-    public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }
+    @Column(name = "completed_at")
+    @Override
+    public LocalDateTime getCompletedAt() { 
+        return super.getCompletedAt(); 
+    }
 }
