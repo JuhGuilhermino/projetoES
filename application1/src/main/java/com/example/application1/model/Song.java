@@ -1,41 +1,44 @@
 package com.example.application1.model;
 
 import jakarta.persistence.*;
+import com.framework.learning_core.domain.BaseSong;
 
 @Entity
 @Table(name = "songs")
-public class Song {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String title;
-    private String artist;
+public class Song extends BaseSong {
 
-    @Column(columnDefinition = "TEXT")
-    private String lyrics;
-
-    // Construtor Padrão
-    public Song() {}
-
-    // Construtor Completo
-    public Song(Long id, String title, String artist, String lyrics) {
-        this.id = id;
-        this.title = title;
-        this.artist = artist;
-        this.lyrics = lyrics;
+    // Construtor Padrão exigido pelo JPA
+    public Song() {
+        super();
     }
 
-    // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // Construtor Completo que repassa os dados para a superclasse do framework
+    public Song(Long id, String title, String artist, String lyrics) {
+        super(id, title, artist, lyrics);
+    }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    // Mapeamento das anotações JPA nos métodos Getter herdados
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Override
+    public Long getId() { 
+        return super.getId(); 
+    }
 
-    public String getArtist() { return artist; }
-    public void setArtist(String artist) { this.artist = artist; }
+    @Override
+    public String getTitle() { 
+        return super.getTitle(); 
+    }
 
-    public String getLyrics() { return lyrics; }
-    public void setLyrics(String lyrics) { this.lyrics = lyrics; }
+    @Override
+    public String getArtist() { 
+        return super.getArtist(); 
+    }
 
+    @Column(columnDefinition = "TEXT") // Mantém a configuração específica do PostgreSQL aqui
+    @Override
+    public String getLyrics() { 
+        return super.getLyrics(); 
+    }
 }
