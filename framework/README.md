@@ -44,7 +44,7 @@ Distribuição da refatoração das classes:
 * [x] User.java
 * [x] Song.java
 * [x] Task.java
-* [ ] UserRepository.java
+* [x] UserRepository.java
 * [ ] SongRepository.java
 * [ ] TaskRepository.java
 * [ ] UserService.java
