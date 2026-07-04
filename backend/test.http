@@ -1,0 +1,108 @@
+@baseUrl = http://localhost:8080
+
+### CADASTRO: sucesso
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "",
+  "email": "",
+  "password": "",
+  "level": ""
+}
+
+
+### CADASTRO: falha -> email já cadastrado
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "outro_username",
+  "email": "teste@lyricsflow.com",
+  "password": "OutraSenha123",
+  "level": "ADVANCED"
+}
+
+
+### LOGIN: com sucesso
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "julia@test.com",
+  "password": "SenhaSegura123"
+}
+
+
+### LOGIN: falha -> senha errada
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "julia@test.com",
+  "password": "SenhaErradaMsm"
+}
+
+
+### LISTA MÚSICA
+GET {{baseUrl}}/song
+Accept: application/json
+
+
+### TAREFA: gerar darefa de uma música
+POST {{baseUrl}}/tasks/start
+Content-Type: application/json
+
+{
+    "userId": 11,
+    "songId": 3
+}
+
+
+### TAREFA: Enviar resposta
+POST {{baseUrl}}/tasks/submit
+Content-Type: application/json
+
+{
+    "taskId": 27,
+    "userId": 11,
+    "userAnswers": [
+        "desert",
+        "wind",
+        "sme",
+        "light",
+        "heavy",
+        "doorway",
+        "bell",
+        "heaven",
+        "place",
+        "room",
+        "friends",
+        "remember"
+    ]
+}
+
+
+### FLASHCARDS: Listar todos os flashcards de um usuário
+GET {{baseUrl}}/flashcards/?userId=10
+Accept: application/json
+
+
+### FLASHCARDS: Revisar um Flashcard isolado via pesquisa direta
+POST {{baseUrl}}/flashcards/review-search?userId=10&word=need&quality=MEDIUM
+Content-Type: application/json
+
+
+### FLAHSCARDS: revisão espaçada
+GET {{baseUrl}}/flashcards/next?userId=10
+Accept: application/json
+
+
+### FLASHCARDS: Responder flahscard
+POST {{baseUrl}}/flashcards/answer
+Content-Type: application/json
+
+{
+  "flashcardId": 26,
+  "quality": "EASY"
+}
