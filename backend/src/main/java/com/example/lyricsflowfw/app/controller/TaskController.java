@@ -1,4 +1,3 @@
-/*
 package com.example.lyricsflowfw.app.controller;
 
 import com.example.lyricsflowfw.app.model.Song;
@@ -7,13 +6,13 @@ import com.example.lyricsflowfw.app.model.User;
 import com.example.lyricsflowfw.app.repository.SongRepository;
 import com.example.lyricsflowfw.app.repository.UserRepository;
 import com.example.lyricsflowfw.app.service.TaskService;
-import com.example.lyricsflowfw.core.domain.LearningProfile;
+import com.example.lyricsflowfw.core.domain.BaseLearningProfile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping("/tasks")
 public class TaskController {
 
     private final TaskService taskService;
@@ -27,11 +26,11 @@ public class TaskController {
         this.songRepository = songRepository;
     }
 
-    @PostMapping("/test-generation")
+    @PostMapping("/tesk-generation")
     public ResponseEntity<?> testTaskGeneration(
             @RequestParam Long userId,
             @RequestParam Long songId,
-            @RequestBody LearningProfile profile) {
+            @RequestBody BaseLearningProfile profile) {
         
         try {
             // 1. Recupera o usuário e a música fictícios que você já inseriu no banco para o teste
@@ -55,10 +54,6 @@ public class TaskController {
         }
     }
 }
-*/
-
-
-
 
 /**
 package com.example.lyricsflowfw.app.controller;

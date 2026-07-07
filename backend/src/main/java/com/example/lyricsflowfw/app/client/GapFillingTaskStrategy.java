@@ -1,7 +1,8 @@
 package com.example.lyricsflowfw.app.client;
 
 import com.example.lyricsflowfw.app.model.Song;
-import com.example.lyricsflowfw.core.domain.LearningProfile;
+import com.example.lyricsflowfw.app.model.LearningProfile;      // Agora é a implementação concreta da app
+import com.example.lyricsflowfw.core.domain.BaseLearningProfile;  // Agora é a interface marcadora do core
 import com.example.lyricsflowfw.core.service.AiTaskGeneratorStrategy;
 import com.example.lyricsflowfw.core.dto.AiTaskResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,14 +27,16 @@ public class GapFillingTaskStrategy implements AiTaskGeneratorStrategy<Song> {
     }
 
     @Override
-    public AiTaskResponseDTO generateTask(Song content, LearningProfile profile) {
+    public AiTaskResponseDTO generateTask(Song content, BaseLearningProfile profile) {
+        // Converte a interface genérica do core para o perfil completo específico da aplicação
+        LearningProfile appProfile = (LearningProfile) profile;
+
         String lyrics = content.getLyrics();
-        String languageLevel = profile.getCEFRLevel();
-        String focusArea = profile.getFocusArea();
+        String currentLevelStr = appProfile.getLanguageLevel() != null ? appProfile.getLanguageLevel().name() : "BEGINNER";
 
         String prompt = """
             Você é um professor de inglês especialista no método Cloze Test (exercício de preencher lacunas).
-            Sua tarefa é receber a letra de uma música e o nível de proficiência do aluno (%s), focando em %s.
+            Sua tarefa é receber a letra de uma música e o nível de proficiência do aluno (%s).
             
             Regras:
             1. Identifique palavras que sejam desafiadoras ou essenciais para o nível %s.
@@ -51,7 +54,7 @@ public class GapFillingTaskStrategy implements AiTaskGeneratorStrategy<Song> {
               "maskedLyrics": "Letra da música com as lacunas _",
               "targetWords": ["palavra1", "palavra2", "palavra3"]
             }
-            """.formatted(languageLevel, focusArea, languageLevel, focusArea, lyrics);
+            """.formatted(currentLevelStr, currentLevelStr, lyrics);
 
         try {
             String responseJson = this.chatModel.call(prompt);
