@@ -1,11 +1,13 @@
 package com.example.lyricsflowfw.app.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 import com.example.lyricsflowfw.app.model.Song;
+import com.example.lyricsflowfw.core.repository.BaseSongRepository;
+import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SongRepository extends JpaRepository<Song, Long> {
+public interface SongRepository extends BaseSongRepository<Song> {
+    
+    // Método específico desta aplicação, combinando o ponto fixo (title) com o ponto flexível (artist)
     Optional<Song> findByArtistAndTitle(String artist, String title);
 }
