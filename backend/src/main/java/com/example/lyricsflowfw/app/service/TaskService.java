@@ -1,4 +1,3 @@
-/*
 package com.example.lyricsflowfw.app.service;
 
 import com.example.lyricsflowfw.app.client.GapFillingTaskStrategy;
@@ -6,7 +5,7 @@ import com.example.lyricsflowfw.app.model.Song;
 import com.example.lyricsflowfw.app.model.Task;
 import com.example.lyricsflowfw.app.model.User;
 import com.example.lyricsflowfw.app.repository.TaskRepository;
-import com.example.lyricsflowfw.core.domain.LearningProfile;
+import com.example.lyricsflowfw.core.domain.BaseLearningProfile;
 import com.example.lyricsflowfw.core.dto.AiTaskResponseDTO;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +21,7 @@ public class TaskService {
     }
 
 
-    public Task generateNewTaskWithGemini(User user, Song song, LearningProfile profile) {
+    public Task generateNewTaskWithGemini(User user, Song song, BaseLearningProfile profile) {
         // 1. Executa a inteligência artificial encapsulada na estratégia
         AiTaskResponseDTO aiResponse = gapFillingTaskStrategy.generateTask(song, profile);
 
@@ -36,17 +35,14 @@ public class TaskService {
             user,
             song,
             0.0f, // Nota padrão inicial
-            aiResponse.generatedActivity(),
-            aiResponse.answerKey()
+            aiResponse.getGeneratedActivity(),
+            aiResponse.getAnswerKey()
         );
 
         // 3. Salva e retorna o registro persistido no banco de dados
         return taskRepository.save(newTask);
     }
 }
-*/
-
-
 
 /*
 @Service

@@ -50,12 +50,13 @@ Accept: application/json
 
 
 ### TAREFA: gerar darefa de uma música
-POST {{baseUrl}}/tasks/start
+POST {{baseUrl}}/tasks/task-generation
 Content-Type: application/json
 
 {
     "userId": 11,
-    "songId": 3
+    "songId": 10,
+    "languageLevel": "INTERMEDIATE"
 }
 
 
