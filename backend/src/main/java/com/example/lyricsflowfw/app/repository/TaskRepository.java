@@ -1,13 +1,12 @@
 package com.example.lyricsflowfw.app.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 import com.example.lyricsflowfw.app.model.Task;
-import java.util.List;
-import java.util.Optional;
+import com.example.lyricsflowfw.app.model.User;
+import com.example.lyricsflowfw.app.model.Song;
+import com.example.lyricsflowfw.core.repository.BaseTaskRepository;
+import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TaskRepository extends JpaRepository<Task, Long> {
-    List<Task> findByUserId(Long userId);
-    Optional<Task> findByUserIdAndSongId(Long userId, Long songId);
+public interface TaskRepository extends BaseTaskRepository<Task, User, Song> {
+    // Todos os métodos findByUserId e findByUserIdAndSongId já são herdados automaticamente!
 }
