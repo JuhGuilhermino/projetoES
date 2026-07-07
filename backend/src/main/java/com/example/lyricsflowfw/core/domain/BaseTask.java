@@ -18,6 +18,7 @@ public abstract class BaseTask<U extends BaseUser, C extends BaseContent> {
     @JoinColumn(name = "content_id") 
     private C content;
 
+    @Column(name = "score")
     private Float score;
     
     @Column(columnDefinition = "TEXT")
@@ -25,6 +26,9 @@ public abstract class BaseTask<U extends BaseUser, C extends BaseContent> {
 
     @Column(columnDefinition = "TEXT")
     private String answerKey;
+
+    protected BaseTask() {
+    }
 
     public BaseTask(Long id, U user, C content, Float score, String generatedActivity, String answerKey) {
         this.id = id;

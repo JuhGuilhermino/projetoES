@@ -1,128 +1,52 @@
 package com.example.lyricsflowfw.app.service;
 
 import com.example.lyricsflowfw.app.client.GapFillingTaskStrategy;
-import com.example.lyricsflowfw.app.model.Song;
-import com.example.lyricsflowfw.app.model.Task;
-import com.example.lyricsflowfw.app.model.User;
-import com.example.lyricsflowfw.app.repository.TaskRepository;
+import com.example.lyricsflowfw.app.model.*;
+import com.example.lyricsflowfw.app.repository.*;
 import com.example.lyricsflowfw.core.domain.BaseLearningProfile;
 import com.example.lyricsflowfw.core.dto.AiTaskResponseDTO;
+import com.example.lyricsflowfw.core.service.BaseTaskService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @Service
-public class TaskService {
+public class TaskService extends BaseTaskService<User, Song, Task> {
 
-    private final GapFillingTaskStrategy gapFillingTaskStrategy;
-    private final TaskRepository taskRepository;
+    private final TaskRepository concreteTaskRepository;
+    private final FlashcardRepository flashcardRepository;
 
-    public TaskService(GapFillingTaskStrategy gapFillingTaskStrategy, TaskRepository taskRepository) {
-        this.gapFillingTaskStrategy = gapFillingTaskStrategy;
-        this.taskRepository = taskRepository;
+    public TaskService(TaskRepository taskRepository,
+                       UserRepository userRepository,
+                       SongRepository songRepository,
+                       FlashcardRepository flashcardRepository,
+                       GapFillingTaskStrategy gapFillingTaskStrategy) {
+        super(taskRepository, userRepository, songRepository, gapFillingTaskStrategy);
+        this.concreteTaskRepository = taskRepository;
+        this.flashcardRepository = flashcardRepository;
     }
 
-
-    public Task generateNewTaskWithGemini(User user, Song song, BaseLearningProfile profile) {
-    
-        AiTaskResponseDTO aiResponse = gapFillingTaskStrategy.generateTask(song, profile);
-
-        if (aiResponse == null) {
-            throw new RuntimeException("Não foi possível gerar a atividade com a IA.");
-        }
-
-        // 2. Instancia a entidade concreta Task passando os parâmetros exigidos
-        Task newTask = new Task(
+    // 1) IMPLEMENTAÇÃO DO PONTO FLEXÍVEL DA INSTANCIAÇÃO
+    @Override
+    protected Task createConcreteTask(User user, Song song, AiTaskResponseDTO aiResponse) {
+        return new Task(
             null,
             user,
             song,
-            0.0f, // Nota padrão inicial
+            0.0f,
             aiResponse.getGeneratedActivity(),
             aiResponse.getAnswerKey()
         );
-
-        // 3. Salva e retorna o registro persistido no banco de dados
-        return taskRepository.save(newTask);
-    }
-}
-
-/*
-@Service
-public class TaskService {
-    private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
-    private final SongRepository songRepository;
-    private final FlashcardRepository flashcardRepository;
-    private final GeminiClient geminiClient;
-
-
-    public TaskService(TaskRepository taskRepository, 
-                       UserRepository userRepository, 
-                       SongRepository songRepository, 
-                       FlashcardRepository flashcardRepository,
-                       GeminiClient geminiClient) {
-        this.taskRepository = taskRepository;
-        this.userRepository = userRepository;
-        this.songRepository = songRepository;
-        this.flashcardRepository = flashcardRepository;
-        this.geminiClient = geminiClient;
     }
 
-    
-    private TaskGenerateResponseDTO getExistingTaskFromDatabase(Task task) {
-        TaskGenerateResponseDTO cachedTask = new TaskGenerateResponseDTO();
-        cachedTask.setTaskId(task.getId());
-        cachedTask.setMaskedLyrics(task.getMaskedLyrics());
-        cachedTask.setTargetWords(task.getTargetWords());
-        return cachedTask;
-    }
-
-
-    private TaskGenerateResponseDTO generateNewTaskWithGemini(User user, Song song) {
-        String userLevel = user.getCurrentLevel() != null ? user.getCurrentLevel().name() : "BEGINNER";
-        
-        TaskGenerateResponseDTO exercise = this.geminiClient.generateTask(song.getLyrics(), userLevel);
-
-        if (exercise == null) {
-            throw new RuntimeException("Falha ao gerar o exercício com o Gemini.");
-        }
-
-        Task newTask = new Task();
-        newTask.setUser(user);
-        newTask.setSong(song);
-        newTask.setScore(0.0f);
-        newTask.setMaskedLyrics(exercise.getMaskedLyrics());
-        newTask.setTargetWords(exercise.getTargetWords());
-        newTask.setCompletedAt(null);
-
-        Task savedTask = this.taskRepository.save(newTask);
-
-        exercise.setTaskId(savedTask.getId());
-
-        return exercise;
-    }
-
-
-    @Transactional
-    public TaskGenerateResponseDTO generateTask(Long userId, Long songId) {
-        Optional<User> userOptional = this.userRepository.findById(userId);
-        Optional<Song> songOptional = this.songRepository.findById(songId);
-    
-        if (userOptional.isEmpty() || songOptional.isEmpty()) {
-            throw new IllegalArgumentException("Usuário ou Música não encontrados.");
-        }
-
-        User user = userOptional.get();
-        Song song = songOptional.get();
-
-        Optional<Task> existingTask = this.taskRepository.findByUserIdAndSongId(userId, songId);
-        if (existingTask.isPresent()) {
-            return getExistingTaskFromDatabase(existingTask.get());
-        }
-
-        return generateNewTaskWithGemini(user, song);
-    }
-
-    
-    private float calculateScore(List<String> answerKey, List<String> userAnswers) {
+    // 2) IMPLEMENTAÇÃO DO PONTO FLEXÍVEL DE CÁLCULO DE SCORE
+    @Override
+    protected float calculateScore(List<String> answerKey, List<String> userAnswers) {
         if (answerKey == null || answerKey.isEmpty()) {
             return 0.0f;
         }
@@ -140,63 +64,65 @@ public class TaskService {
                 }
             }
         }
-
         return ((float) correctCount / totalQuestions) * 10.0f;
     }
 
+    // 3) PONTOS FIXOS ADAPTADOS E SEPARADOS DE ACORDO COM O SEU BANCO ORIGINAL
+    @Transactional
+    public Task generateTask(Long userId, Long songId, BaseLearningProfile profile) {
+        User user = ((UserRepository) userRepository).findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+        Song song = ((SongRepository) contentRepository).findById(songId)
+                .orElseThrow(() -> new IllegalArgumentException("Música não encontrada."));
 
-    private void updateTaskStatus(Task task, float score) {
-        task.setScore(score);
-        task.setCompletedAt(LocalDateTime.now());
-        this.taskRepository.save(task);
+        // Ajustado para refletir o ContentId do framework corrigindo o bug anterior
+        Optional<Task> existingTask = concreteTaskRepository.findByUserIdAndContentId(userId, songId);
+        if (existingTask.isPresent()) {
+            return existingTask.get();
+        }
+
+        return generateNewTaskWithGemini(user, song, profile);
     }
 
+    @Transactional
+    public void submitTask(Long taskId, List<String> userAnswers) {
+        Task task = concreteTaskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Tarefa não encontrada!"));
+        
+        List<String> answerKey = Arrays.asList(task.getAnswerKey().split(",\\s*"));
+        float finalScore = calculateScore(answerKey, userAnswers);
+        
+        // 1. Altera o valor no objeto atual
+        task.setScore(finalScore); 
+        
+        // 2. ATENÇÃO AQUI: O método save() retorna a instância que foi de fato persistida!
+        Task savedTask = concreteTaskRepository.save(task); 
+        
+        // 3. Use o savedTask para continuar o fluxo, garantindo que o banco fechou a operação
+        createFlashcardsForTask(savedTask.getUser(), answerKey);
+    }
 
     private void createFlashcardsForTask(User user, List<String> answerKey) {
-        if (answerKey == null || answerKey.isEmpty()) {
-            return;
-        }
+        if (answerKey == null || answerKey.isEmpty()) return;
 
         for (String word : answerKey) {
             if (word == null) continue;
-
             String cleanWord = word.trim();
 
-            boolean alreadyExists = this.flashcardRepository.existsByUserIdAndWordIgnoreCase(user.getId(), cleanWord);
+            boolean alreadyExists = flashcardRepository.existsByUserIdAndWordIgnoreCase(user.getId(), cleanWord);
 
             if (!alreadyExists) {
                 Flashcard flashcard = new Flashcard();
                 flashcard.setUser(user);
                 flashcard.setWord(cleanWord);
-                flashcard.setInterval(1); 
+                flashcard.setInterval(1);
                 flashcard.setNextReviewDate(LocalDate.now().plusDays(1));
-                flashcard.setEaseFactor(2.5f); 
-                flashcard.setLastQuality(null);
+                flashcard.setEaseFactor(2.5f);
                 flashcard.setCreatedAt(LocalDateTime.now());
 
-                this.flashcardRepository.save(flashcard);
+                flashcardRepository.save(flashcard);
             }
         }
     }
-
-
-    public void submitTask(TaskSubmissionDTO submission) {
-        Optional<Task> taskOptional = this.taskRepository.findById(submission.getTaskId());
-        if (taskOptional.isEmpty()) {
-            throw new IllegalArgumentException("Tarefa não encontrada!.");
-        }
-        Task task = taskOptional.get();
-        User user = task.getUser();
-
-        List<String> answerKey = task.getTargetWords();
-        List<String> userAnswers = submission.getUserAnswers();
-
-        float finalScore = calculateScore(answerKey, userAnswers);
-        updateTaskStatus(task, finalScore);
-        createFlashcardsForTask(user, answerKey);
-    }
-
-
 }
-*/
 

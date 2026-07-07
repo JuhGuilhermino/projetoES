@@ -1,64 +1,12 @@
 package com.example.lyricsflowfw.app.controller;
 
 import com.example.lyricsflowfw.app.dto.TaskGenerationRequestDTO;
-import com.example.lyricsflowfw.app.model.Song;
 import com.example.lyricsflowfw.app.model.Task;
-import com.example.lyricsflowfw.app.model.User;
-import com.example.lyricsflowfw.app.repository.SongRepository;
-import com.example.lyricsflowfw.app.repository.UserRepository;
 import com.example.lyricsflowfw.app.service.TaskService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/tasks")
-public class TaskController {
-
-    private final TaskService taskService;
-    private final UserRepository userRepository;
-    private final SongRepository songRepository;
-
-    public TaskController(TaskService taskService, UserRepository userRepository, SongRepository songRepository) {
-        this.taskService = taskService;
-        this.userRepository = userRepository;
-        this.songRepository = songRepository;
-    }
-
-    @PostMapping("/task-generation")
-    public ResponseEntity<?> testTaskGeneration(@RequestBody TaskGenerationRequestDTO request) {
-        try {
-            // 1. Recupera os dados de dentro do novo DTO unificado
-            User user = userRepository.findById(request.userId())
-                    .orElseThrow(() -> new IllegalArgumentException("Usuário com ID " + request.userId() + " não encontrado."));
-
-            Song song = songRepository.findById(request.songId())
-                    .orElseThrow(() -> new IllegalArgumentException("Música com ID " + request.songId() + " não encontrada."));
-
-            // 2. Passa o profile contido no DTO para o serviço
-            Task generatedTask = taskService.generateNewTaskWithGemini(user, song, request.profile());
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(generatedTask);
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao processar a requisição de IA: " + e.getMessage());
-        }
-    }
-}
-
-/**
-package com.example.lyricsflowfw.app.controller;
-
-import com.example.lyricsflowfw.app.dto.TaskGenerateResponseDTO;
-import com.example.lyricsflowfw.app.dto.TaskStartRequestDTO;
-import com.example.lyricsflowfw.app.dto.TaskSubmissionDTO;
-import com.example.lyricsflowfw.app.service.TaskService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
@@ -67,47 +15,48 @@ public class TaskController {
 
     private final TaskService taskService;
 
+    // Repositórios removidos daqui, pois a orquestração agora é 100% responsabilidade do Service
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
 
-    @PostMapping("/start")
-    public ResponseEntity<?> startTask(@RequestBody TaskStartRequestDTO request) {
+    /**
+     * Endpoint para Geração ou Recuperação de Exercícios (Cloze Test) via IA.
+     */
+    @PostMapping("/task-generation")
+    public ResponseEntity<?> testTaskGeneration(@RequestBody TaskGenerationRequestDTO request) {
         try {
-            TaskGenerateResponseDTO exercise = this.taskService.generateTask(request.getUserId(), request.getSongId());
-            return ResponseEntity.ok(exercise);
+            // Invoca o fluxo completo: busca cache ou gera com a estratégia de IA encapsulada
+            Task task = taskService.generateTask(request.userId(), request.songId(), request.profile());
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(task);
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Ocorreu um erro ao gerar o exercício: " + e.getMessage());
+                    .body("Erro ao processar a requisição de IA: " + e.getMessage());
         }
     }
 
-    
-    @PostMapping("/submit")
-    public ResponseEntity<String> submitTask(@RequestBody TaskSubmissionDTO submission) {
+    /**
+     * Endpoint para Submissão e Correção do Exercício.
+     * Testa o ponto flexível calculateScore e a criação de Flashcards.
+     */
+    @PostMapping("/{taskId}/submit")
+    public ResponseEntity<?> submitTaskResponse(
+            @PathVariable Long taskId,
+            @RequestBody List<String> userAnswers) {
         try {
-            this.taskService.submitTask(submission);
-            return ResponseEntity.ok("Exercício enviado com sucesso. Pontuação calculada e flashcards gerados.");
+            taskService.submitTask(taskId, userAnswers);
+            return ResponseEntity.ok("Respostas submetidas e corrigidas com sucesso!");
+            
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Ocorreu um erro ao enviar o exercício: " + e.getMessage());
+                    .body("Erro ao processar a correção: " + e.getMessage());
         }
     }
-    
-    @PostMapping("/music")
-    public ResponseEntity<?> findOrSaveMusic(@RequestBody MusicRequestDTO request) {
-        try {
-            MusicResponseDTO response = this.taskService.searchSong(request.getTitle(), request.getArtist());
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Ocorreu um erro ao processar a requisição da música: " + e.getMessage());
-        }
-    }
-    */
+}
+
