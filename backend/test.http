@@ -24,23 +24,13 @@ Content-Type: application/json
 }
 
 
-### LOGIN: com sucesso
+### LOGIN
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
   "email": "teste@lyricsflow.com",
   "password": "OutraSenha123"
-}
-
-
-### LOGIN: falha -> senha errada
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
-
-{
-  "email": "julia@test.com",
-  "password": "SenhaErradaMsm"
 }
 
 
@@ -82,17 +72,17 @@ Content-Type: application/json
 
 
 ### FLASHCARDS: Listar todos os flashcards de um usuário
-GET {{baseUrl}}/flashcards/?userId=10
+GET {{baseUrl}}/flashcards?userId=3
 Accept: application/json
 
 
 ### FLASHCARDS: Revisar um Flashcard isolado via pesquisa direta
-POST {{baseUrl}}/flashcards/review-search?userId=10&word=need&quality=MEDIUM
+POST {{baseUrl}}/flashcards/review-search?userId=3&word=bars&quality=MEDIUM
 Content-Type: application/json
 
 
 ### FLAHSCARDS: revisão espaçada
-GET {{baseUrl}}/flashcards/next?userId=10
+GET {{baseUrl}}/flashcards/next?userId=3
 Accept: application/json
 
 
@@ -101,7 +91,7 @@ POST {{baseUrl}}/flashcards/answer
 Content-Type: application/json
 
 {
-  "flashcardId": 26,
+  "flashcardId": 7,
   "quality": "EASY"
 }
 
