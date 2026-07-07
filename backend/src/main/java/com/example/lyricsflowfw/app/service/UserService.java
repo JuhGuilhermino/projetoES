@@ -5,9 +5,7 @@ import com.example.lyricsflowfw.app.dto.UserRegisterRequestDTO;
 import com.example.lyricsflowfw.app.dto.UserRegisterResponseDTO;
 import com.example.lyricsflowfw.app.dto.UserResponseDTO;
 import com.example.lyricsflowfw.app.model.User;
-import com.example.lyricsflowfw.app.model.UserProgress;
 import com.example.lyricsflowfw.app.repository.UserRepository;
-import com.example.lyricsflowfw.app.repository.UserProgressRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 //import java.util.Optional;
@@ -15,11 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserService {  // PONTO FIXO
     private final UserRepository userRepository;
-    private final UserProgressRepository userProgressRepository;
 
-    public UserService(UserRepository userRepository, UserProgressRepository userProgressRepository) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.userProgressRepository = userProgressRepository;
     }
 
     @Transactional
@@ -37,14 +33,6 @@ public class UserService {  // PONTO FIXO
         user.setPassword(request.getPassword()); 
         user.setCurrentLevel(request.getLevel());
         User savedUser = userRepository.save(user);
-
-        UserProgress progress = new UserProgress();
-        progress.setUser(savedUser);
-        progress.setTotalTasksCompleted(0);
-        progress.setAverageTaskScore(0.0f);
-        progress.setTotalTargetWords(0);
-        progress.setTotalFlashcardsCount(0);
-        this.userProgressRepository.save(progress);
 
         return new UserRegisterResponseDTO(
                 savedUser.getId(),
